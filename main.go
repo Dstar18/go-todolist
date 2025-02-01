@@ -15,6 +15,7 @@ func main() {
 	// migration schema
 	database.DB.AutoMigrate(&models.User{})
 	database.DB.AutoMigrate(&models.Notes{})
+	database.DB.AutoMigrate(&models.Items{})
 
 	// initialize Gin
 	r := gin.Default()
@@ -29,6 +30,11 @@ func main() {
 	r.GET("notes", controllers.GetNotes)
 	r.POST("notes", controllers.StoreNotes)
 	r.PUT("notes/:id", controllers.UpdateNotes)
+	r.DELETE("notes/:id", controllers.DestroyNotes)
+
+	// Routes items
+	r.GET("item/:id", controllers.ShowItems)
+	r.DELETE("item/:id", controllers.DestroyItems)
 
 	// run server
 	r.Run(":3000")

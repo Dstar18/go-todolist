@@ -98,7 +98,7 @@ func UpdateNotes(c *gin.Context) {
 	if err := database.DB.First(&notesM, id).Error; err != nil {
 		c.JSON(http.StatusNotFound, gin.H{
 			"code":    404,
-			"message": "Book Not Found",
+			"message": "Notes Not Found",
 			"data":    nil,
 		})
 		return
@@ -146,5 +146,45 @@ func UpdateNotes(c *gin.Context) {
 		"code":    200,
 		"message": "Created successfully",
 		"data":    notesM,
+	})
+}
+
+// func destroy notes and item relation
+func DestroyNotes(c *gin.Context) {
+	// request param id
+	idNote := c.Param("id")
+
+	// request struct
+	var notesM models.Notes
+	var itemsM models.Items
+
+	// check data by id
+	if err := database.DB.First(&notesM, idNote).Error; err != nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"code":    404,
+			"message": "Notes Not Found",
+			"data":    nil,
+		})
+		return
+	}
+
+	// delete item by idnote
+	database.DB.Where("id_notes = ?", idNote).Delete(&itemsM)
+	// delte notes
+	if err := database.DB.Where("id = ?", idNote).Delete(&notesM).Error; err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"code":    500,
+			"message": "Failed to delete notes",
+		})
+		return
+	}
+
+	// return success
+	c.JSON(http.StatusOK, gin.H{
+		"code":    200,
+		"message": "Deleted successfully",
+		"data": map[string]interface{}{
+			"id": notesM.ID,
+		},
 	})
 }
